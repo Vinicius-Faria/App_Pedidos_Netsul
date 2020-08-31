@@ -1,0 +1,89 @@
+object ServerMethodDM: TServerMethodDM
+  OnCreate = ServerMethodDataModuleCreate
+  OldCreateOrder = False
+  Encoding = esUtf8
+  Height = 251
+  HorizontalOffset = 542
+  VerticalOffset = 199
+  Width = 291
+  PPI = 96
+  object RESTDWPoolerDB1: TRESTDWPoolerDB
+    Compression = True
+    Encoding = esUtf8
+    StrsTrim = False
+    StrsEmpty2Null = False
+    StrsTrim2Len = True
+    Active = True
+    PoolerOffMessage = 'RESTPooler not active.'
+    ParamCreate = True
+    left = 64
+    top = 168
+  end
+  object DWServerEvents1: TDWServerEvents
+    IgnoreInvalidParams = False
+    Events = <    
+      item
+        Routes = [crAll]
+        DWParams = <        
+          item
+            TypeObject = toParam
+            ObjectDirection = odINOUT
+            ObjectValue = ovString
+            ParamName = 'user'
+            Encoded = True
+          end        
+          item
+            TypeObject = toParam
+            ObjectDirection = odINOUT
+            ObjectValue = ovString
+            ParamName = 'pwd'
+            Encoded = True
+          end>
+        JsonMode = jmPureJSON
+        Name = 'Login'
+        OnReplyEvent = DWServerEvents1EventsLoginReplyEvent
+      end>
+    AccessTag = 'QVFDESOKH100HXA'
+    left = 192
+    top = 104
+  end
+  object DWServerContext1: TDWServerContext
+    IgnoreInvalidParams = False
+    ContextList = <>
+    BaseContext = 'www'
+    RootContext = 'webpascal'
+    OnBeforeRenderer = DWServerContext1BeforeRenderer
+    left = 192
+    top = 168
+  end
+  object ZConnection1: TZConnection
+    ControlsCodePage = cCP_UTF8
+    AutoEncodeStrings = True
+    ClientCodepage = 'ISO8859_9'
+    Properties.Strings = (
+      'controls_cp=CP_UTF8'
+      'AutoEncodeStrings=ON'
+      'codepage=ISO8859_9'
+    )
+    BeforeConnect = ZConnection1BeforeConnect
+    AfterConnect = ZConnection1AfterConnect
+    HostName = 'localhost'
+    Port = 3050
+    Protocol = 'firebird-2.5'
+    left = 64
+    top = 40
+  end
+  object ZQuery1: TZQuery
+    Connection = ZConnection1
+    Params = <>
+    left = 192
+    top = 40
+  end
+  object RESTDWDriverZeos1: TRESTDWDriverZeos
+    DatabaseCharSet = csUndefined
+    CommitRecords = 100
+    Connection = ZConnection1
+    left = 64
+    top = 104
+  end
+end

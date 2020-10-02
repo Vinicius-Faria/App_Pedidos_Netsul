@@ -120,7 +120,9 @@ class _MenuWidgetState extends ModularState<MenuWidget, AppController> {
                               header: 'Produtos',
                               botton: controller.totProd.toString() +
                                   ' produtos registrados',
-                              onPress: () {},
+                              onPress: () {
+                                Modular.to.pushNamed('produtoLista');
+                              },
                             );
                           }),
                         ),
@@ -129,9 +131,11 @@ class _MenuWidgetState extends ModularState<MenuWidget, AppController> {
                             return MenuItem(
                               img: 'images/pedidos.png',
                               header: 'Pedidos',
-                              botton: controller.totPed.toString() +
-                                  ' pedidos registrados',
-                              onPress: () async {},
+                              botton: //controller.totPed.toString() +
+                                  '1 pedidos registrados',
+                              onPress: () {
+                                Modular.to.pushNamed('pedidoLista');
+                              },
                             );
                           }),
                         ),
@@ -140,7 +144,9 @@ class _MenuWidgetState extends ModularState<MenuWidget, AppController> {
                             img: 'images/vender.png',
                             header: 'Novo pedido',
                             botton: 'Registrar um novo pedido',
-                            onPress: () {},
+                            onPress: () {
+                              Modular.to.pushNamed('clienteSel');
+                            },
                           ),
                         ),
                         ElasticInLeft(

@@ -119,6 +119,11 @@ class _SincroPageState extends ModularState<SincroPage, AppController> {
                 pr = ProgressDialog(context);
                 pr.update(message: 'Aguarde...');
                 pr.show();
+
+                if (pedido) {
+                  pr.update(message: 'Enviando pedidos...');
+                  await enviaPedido(controller.enviaVendas);
+                }
                 if (categ) {
                   pr.update(message: 'Atualizando Categorias...');
                   await buscaCategorias(controller.categoriaRemoto);
@@ -129,9 +134,10 @@ class _SincroPageState extends ModularState<SincroPage, AppController> {
 
                 if (cliente) {
                   pr.update(message: 'Atualizando Clientes...');
-                  await buscaClientes(controller.clienteRemoto);
-                  int c = await Basedados.instance.countCl();
-                  controller.updtotCli(c);
+                  await enviarClientes(controller.enviaClientes);
+                  // await buscaClientes(controller.clienteRemoto);
+                  // int c = await Basedados.instance.countCl();
+                  // controller.updtotCli(c);
                 }
 
                 if (produto) {

@@ -59,15 +59,58 @@ Future<List<ClientesModel>> buscaClientes(String url) async {
     throw Exception('Erro ao carregar produtos');
 }
 
-Future<void> enviaPedido() async {
+Future<void> enviaPedido(String url) async {
   List _ped = await Basedados.instance.enviarPedido();
-  print(_ped);
-
   List _itens = await Basedados.instance.enviarItens();
-  print(_itens);
+
+  if (_ped.length > 0) {
+    String _jHeader = json.encode(_ped);
+    var hEncodado = utf8.encode(_jHeader);
+    var h = base64.encode(hEncodado);
+
+    String _jItens = json.encode(_itens);
+    var iEncodado = utf8.encode(_jItens);
+    var i = base64.encode(iEncodado);
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: {"pHeader": h, "pItens": i},
+    );
+
+    if (response.statusCode == 200) {
+      if (response.body == '{"MESSAGE":"OK",  "RESULT":"OK"}') {
+        Basedados.instance.delAllPedidos();
+        Basedados.instance.delAllItem();
+      }
+    }
+  }
+  return null;
+  
 }
 
 Future<void> listaCategoria() async {
   Stream<List<Categoria>> _ped = Basedados.instance.enviaCat();
   print(_ped);
+}
+
+Future<void> enviarClientes(String url) async {
+  List _cli = await Basedados.instance.enviaCliente();
+  print(_cli);
+  if (_cli.length > 0) {
+    String _jsonc = json.encode(_cli);
+    var cEncodado = utf8.encode(_jsonc);
+    var c = base64.encode(cEncodado);
+
+    final response = await http.post(url,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {"pSelect": c});
+
+    if (response.statusCode == 200) {
+      if (response.body == 'ok') {
+        print(response.body);
+        Basedados.instance.zeraCliente();
+      }
+    }
+  }
 }

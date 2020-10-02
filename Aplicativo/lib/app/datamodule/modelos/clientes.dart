@@ -4,7 +4,8 @@ class ClientesModel {
   factory ClientesModel.fromJson(Map<String, dynamic> json) {
     Basedados.instance.addCliente(
       Cliente(
-        id: json["ID"],
+        id: json["UUID"],
+        cnpj: json["CNPJCPF"],
         nome: json["NOME"],
         bairro: json["BAIRRO"] ?? '',
         cep: json["CEP"] ?? '00.000-00',
@@ -16,6 +17,7 @@ class ClientesModel {
         numero: json["NUMERO"] ?? 'S/N',
         telefone: json["TELEFONE"] ?? '',
         uf: json["UF"] ?? '',
+        alterado: 0,
       ),
     );
     return null;

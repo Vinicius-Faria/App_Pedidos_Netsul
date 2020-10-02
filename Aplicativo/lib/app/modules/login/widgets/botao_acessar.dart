@@ -54,7 +54,7 @@ class BotaoAcessar extends StatelessWidget {
                   print('login>>>> ' + ctrlApp.login);
                   print('id>>>> ' + ctrlApp.idUsuario.toString());
                   print('ip>>>> ' + ctrlApp.ip);
-                  if (ctrlApp.idUsuario != 0) {
+                  if (ctrlApp.idUsuario == 0) {
                     Modular.to.pushNamed('menu');
                   } else {
                     Modular.to.pushNamed('config');

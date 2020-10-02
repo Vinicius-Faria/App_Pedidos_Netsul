@@ -168,7 +168,8 @@ class Produto extends DataClass implements Insertable<Produto> {
   final String unidade;
   final int preco;
   final String valorfmt;
-  final double quant;
+  final String total;
+  final int quant;
   Produto(
       {@required this.id,
       @required this.nome,
@@ -176,13 +177,13 @@ class Produto extends DataClass implements Insertable<Produto> {
       @required this.unidade,
       @required this.preco,
       @required this.valorfmt,
+      @required this.total,
       @required this.quant});
   factory Produto.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
-    final doubleType = db.typeSystem.forDartType<double>();
     return Produto(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       nome: stringType.mapFromDatabaseResponse(data['${effectivePrefix}nome']),
@@ -193,8 +194,9 @@ class Produto extends DataClass implements Insertable<Produto> {
       preco: intType.mapFromDatabaseResponse(data['${effectivePrefix}preco']),
       valorfmt: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}valorfmt']),
-      quant:
-          doubleType.mapFromDatabaseResponse(data['${effectivePrefix}quant']),
+      total:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}total']),
+      quant: intType.mapFromDatabaseResponse(data['${effectivePrefix}quant']),
     );
   }
   factory Produto.fromJson(Map<String, dynamic> json,
@@ -207,7 +209,8 @@ class Produto extends DataClass implements Insertable<Produto> {
       unidade: serializer.fromJson<String>(json['unidade']),
       preco: serializer.fromJson<int>(json['preco']),
       valorfmt: serializer.fromJson<String>(json['valorfmt']),
-      quant: serializer.fromJson<double>(json['quant']),
+      total: serializer.fromJson<String>(json['total']),
+      quant: serializer.fromJson<int>(json['quant']),
     );
   }
   @override
@@ -220,7 +223,8 @@ class Produto extends DataClass implements Insertable<Produto> {
       'unidade': serializer.toJson<String>(unidade),
       'preco': serializer.toJson<int>(preco),
       'valorfmt': serializer.toJson<String>(valorfmt),
-      'quant': serializer.toJson<double>(quant),
+      'total': serializer.toJson<String>(total),
+      'quant': serializer.toJson<int>(quant),
     };
   }
 
@@ -240,6 +244,8 @@ class Produto extends DataClass implements Insertable<Produto> {
       valorfmt: valorfmt == null && nullToAbsent
           ? const Value.absent()
           : Value(valorfmt),
+      total:
+          total == null && nullToAbsent ? const Value.absent() : Value(total),
       quant:
           quant == null && nullToAbsent ? const Value.absent() : Value(quant),
     );
@@ -252,7 +258,8 @@ class Produto extends DataClass implements Insertable<Produto> {
           String unidade,
           int preco,
           String valorfmt,
-          double quant}) =>
+          String total,
+          int quant}) =>
       Produto(
         id: id ?? this.id,
         nome: nome ?? this.nome,
@@ -260,6 +267,7 @@ class Produto extends DataClass implements Insertable<Produto> {
         unidade: unidade ?? this.unidade,
         preco: preco ?? this.preco,
         valorfmt: valorfmt ?? this.valorfmt,
+        total: total ?? this.total,
         quant: quant ?? this.quant,
       );
   @override
@@ -271,6 +279,7 @@ class Produto extends DataClass implements Insertable<Produto> {
           ..write('unidade: $unidade, ')
           ..write('preco: $preco, ')
           ..write('valorfmt: $valorfmt, ')
+          ..write('total: $total, ')
           ..write('quant: $quant')
           ..write(')'))
         .toString();
@@ -285,8 +294,10 @@ class Produto extends DataClass implements Insertable<Produto> {
               idcategoria.hashCode,
               $mrjc(
                   unidade.hashCode,
-                  $mrjc(preco.hashCode,
-                      $mrjc(valorfmt.hashCode, quant.hashCode)))))));
+                  $mrjc(
+                      preco.hashCode,
+                      $mrjc(valorfmt.hashCode,
+                          $mrjc(total.hashCode, quant.hashCode))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -297,6 +308,7 @@ class Produto extends DataClass implements Insertable<Produto> {
           other.unidade == this.unidade &&
           other.preco == this.preco &&
           other.valorfmt == this.valorfmt &&
+          other.total == this.total &&
           other.quant == this.quant);
 }
 
@@ -307,7 +319,8 @@ class ProdutosCompanion extends UpdateCompanion<Produto> {
   final Value<String> unidade;
   final Value<int> preco;
   final Value<String> valorfmt;
-  final Value<double> quant;
+  final Value<String> total;
+  final Value<int> quant;
   const ProdutosCompanion({
     this.id = const Value.absent(),
     this.nome = const Value.absent(),
@@ -315,6 +328,7 @@ class ProdutosCompanion extends UpdateCompanion<Produto> {
     this.unidade = const Value.absent(),
     this.preco = const Value.absent(),
     this.valorfmt = const Value.absent(),
+    this.total = const Value.absent(),
     this.quant = const Value.absent(),
   });
   ProdutosCompanion.insert({
@@ -324,13 +338,15 @@ class ProdutosCompanion extends UpdateCompanion<Produto> {
     @required String unidade,
     @required int preco,
     @required String valorfmt,
-    @required double quant,
+    @required String total,
+    @required int quant,
   })  : id = Value(id),
         nome = Value(nome),
         idcategoria = Value(idcategoria),
         unidade = Value(unidade),
         preco = Value(preco),
         valorfmt = Value(valorfmt),
+        total = Value(total),
         quant = Value(quant);
   ProdutosCompanion copyWith(
       {Value<int> id,
@@ -339,7 +355,8 @@ class ProdutosCompanion extends UpdateCompanion<Produto> {
       Value<String> unidade,
       Value<int> preco,
       Value<String> valorfmt,
-      Value<double> quant}) {
+      Value<String> total,
+      Value<int> quant}) {
     return ProdutosCompanion(
       id: id ?? this.id,
       nome: nome ?? this.nome,
@@ -347,6 +364,7 @@ class ProdutosCompanion extends UpdateCompanion<Produto> {
       unidade: unidade ?? this.unidade,
       preco: preco ?? this.preco,
       valorfmt: valorfmt ?? this.valorfmt,
+      total: total ?? this.total,
       quant: quant ?? this.quant,
     );
   }
@@ -426,12 +444,24 @@ class $ProdutosTable extends Produtos with TableInfo<$ProdutosTable, Produto> {
     );
   }
 
-  final VerificationMeta _quantMeta = const VerificationMeta('quant');
-  GeneratedRealColumn _quant;
+  final VerificationMeta _totalMeta = const VerificationMeta('total');
+  GeneratedTextColumn _total;
   @override
-  GeneratedRealColumn get quant => _quant ??= _constructQuant();
-  GeneratedRealColumn _constructQuant() {
-    return GeneratedRealColumn(
+  GeneratedTextColumn get total => _total ??= _constructTotal();
+  GeneratedTextColumn _constructTotal() {
+    return GeneratedTextColumn(
+      'total',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _quantMeta = const VerificationMeta('quant');
+  GeneratedIntColumn _quant;
+  @override
+  GeneratedIntColumn get quant => _quant ??= _constructQuant();
+  GeneratedIntColumn _constructQuant() {
+    return GeneratedIntColumn(
       'quant',
       $tableName,
       false,
@@ -440,7 +470,7 @@ class $ProdutosTable extends Produtos with TableInfo<$ProdutosTable, Produto> {
 
   @override
   List<GeneratedColumn> get $columns =>
-      [id, nome, idcategoria, unidade, preco, valorfmt, quant];
+      [id, nome, idcategoria, unidade, preco, valorfmt, total, quant];
   @override
   $ProdutosTable get asDslTable => this;
   @override
@@ -486,6 +516,12 @@ class $ProdutosTable extends Produtos with TableInfo<$ProdutosTable, Produto> {
     } else if (isInserting) {
       context.missing(_valorfmtMeta);
     }
+    if (d.total.present) {
+      context.handle(
+          _totalMeta, total.isAcceptableValue(d.total.value, _totalMeta));
+    } else if (isInserting) {
+      context.missing(_totalMeta);
+    }
     if (d.quant.present) {
       context.handle(
           _quantMeta, quant.isAcceptableValue(d.quant.value, _quantMeta));
@@ -524,8 +560,11 @@ class $ProdutosTable extends Produtos with TableInfo<$ProdutosTable, Produto> {
     if (d.valorfmt.present) {
       map['valorfmt'] = Variable<String, StringType>(d.valorfmt.value);
     }
+    if (d.total.present) {
+      map['total'] = Variable<String, StringType>(d.total.value);
+    }
     if (d.quant.present) {
-      map['quant'] = Variable<double, RealType>(d.quant.value);
+      map['quant'] = Variable<int, IntType>(d.quant.value);
     }
     return map;
   }
@@ -537,7 +576,8 @@ class $ProdutosTable extends Produtos with TableInfo<$ProdutosTable, Produto> {
 }
 
 class Cliente extends DataClass implements Insertable<Cliente> {
-  final int id;
+  final String id;
+  final String cnpj;
   final String nome;
   final String fantasia;
   final String endereco;
@@ -549,8 +589,10 @@ class Cliente extends DataClass implements Insertable<Cliente> {
   final String municipio;
   final String lat;
   final String lng;
+  final int alterado;
   Cliente(
       {@required this.id,
+      @required this.cnpj,
       @required this.nome,
       @required this.fantasia,
       @required this.endereco,
@@ -561,14 +603,16 @@ class Cliente extends DataClass implements Insertable<Cliente> {
       @required this.uf,
       @required this.municipio,
       @required this.lat,
-      @required this.lng});
+      @required this.lng,
+      @required this.alterado});
   factory Cliente.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
+    final intType = db.typeSystem.forDartType<int>();
     return Cliente(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      cnpj: stringType.mapFromDatabaseResponse(data['${effectivePrefix}cnpj']),
       nome: stringType.mapFromDatabaseResponse(data['${effectivePrefix}nome']),
       fantasia: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}fantasia']),
@@ -586,13 +630,16 @@ class Cliente extends DataClass implements Insertable<Cliente> {
           .mapFromDatabaseResponse(data['${effectivePrefix}municipio']),
       lat: stringType.mapFromDatabaseResponse(data['${effectivePrefix}lat']),
       lng: stringType.mapFromDatabaseResponse(data['${effectivePrefix}lng']),
+      alterado:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}alterado']),
     );
   }
   factory Cliente.fromJson(Map<String, dynamic> json,
       {ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Cliente(
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<String>(json['id']),
+      cnpj: serializer.fromJson<String>(json['cnpj']),
       nome: serializer.fromJson<String>(json['nome']),
       fantasia: serializer.fromJson<String>(json['fantasia']),
       endereco: serializer.fromJson<String>(json['endereco']),
@@ -604,13 +651,15 @@ class Cliente extends DataClass implements Insertable<Cliente> {
       municipio: serializer.fromJson<String>(json['municipio']),
       lat: serializer.fromJson<String>(json['lat']),
       lng: serializer.fromJson<String>(json['lng']),
+      alterado: serializer.fromJson<int>(json['alterado']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<String>(id),
+      'cnpj': serializer.toJson<String>(cnpj),
       'nome': serializer.toJson<String>(nome),
       'fantasia': serializer.toJson<String>(fantasia),
       'endereco': serializer.toJson<String>(endereco),
@@ -622,6 +671,7 @@ class Cliente extends DataClass implements Insertable<Cliente> {
       'municipio': serializer.toJson<String>(municipio),
       'lat': serializer.toJson<String>(lat),
       'lng': serializer.toJson<String>(lng),
+      'alterado': serializer.toJson<int>(alterado),
     };
   }
 
@@ -629,6 +679,7 @@ class Cliente extends DataClass implements Insertable<Cliente> {
   ClientesCompanion createCompanion(bool nullToAbsent) {
     return ClientesCompanion(
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      cnpj: cnpj == null && nullToAbsent ? const Value.absent() : Value(cnpj),
       nome: nome == null && nullToAbsent ? const Value.absent() : Value(nome),
       fantasia: fantasia == null && nullToAbsent
           ? const Value.absent()
@@ -650,11 +701,15 @@ class Cliente extends DataClass implements Insertable<Cliente> {
           : Value(municipio),
       lat: lat == null && nullToAbsent ? const Value.absent() : Value(lat),
       lng: lng == null && nullToAbsent ? const Value.absent() : Value(lng),
+      alterado: alterado == null && nullToAbsent
+          ? const Value.absent()
+          : Value(alterado),
     );
   }
 
   Cliente copyWith(
-          {int id,
+          {String id,
+          String cnpj,
           String nome,
           String fantasia,
           String endereco,
@@ -665,9 +720,11 @@ class Cliente extends DataClass implements Insertable<Cliente> {
           String uf,
           String municipio,
           String lat,
-          String lng}) =>
+          String lng,
+          int alterado}) =>
       Cliente(
         id: id ?? this.id,
+        cnpj: cnpj ?? this.cnpj,
         nome: nome ?? this.nome,
         fantasia: fantasia ?? this.fantasia,
         endereco: endereco ?? this.endereco,
@@ -679,11 +736,13 @@ class Cliente extends DataClass implements Insertable<Cliente> {
         municipio: municipio ?? this.municipio,
         lat: lat ?? this.lat,
         lng: lng ?? this.lng,
+        alterado: alterado ?? this.alterado,
       );
   @override
   String toString() {
     return (StringBuffer('Cliente(')
           ..write('id: $id, ')
+          ..write('cnpj: $cnpj, ')
           ..write('nome: $nome, ')
           ..write('fantasia: $fantasia, ')
           ..write('endereco: $endereco, ')
@@ -694,7 +753,8 @@ class Cliente extends DataClass implements Insertable<Cliente> {
           ..write('uf: $uf, ')
           ..write('municipio: $municipio, ')
           ..write('lat: $lat, ')
-          ..write('lng: $lng')
+          ..write('lng: $lng, ')
+          ..write('alterado: $alterado')
           ..write(')'))
         .toString();
   }
@@ -703,30 +763,37 @@ class Cliente extends DataClass implements Insertable<Cliente> {
   int get hashCode => $mrjf($mrjc(
       id.hashCode,
       $mrjc(
-          nome.hashCode,
+          cnpj.hashCode,
           $mrjc(
-              fantasia.hashCode,
+              nome.hashCode,
               $mrjc(
-                  endereco.hashCode,
+                  fantasia.hashCode,
                   $mrjc(
-                      numero.hashCode,
+                      endereco.hashCode,
                       $mrjc(
-                          bairro.hashCode,
+                          numero.hashCode,
                           $mrjc(
-                              cep.hashCode,
+                              bairro.hashCode,
                               $mrjc(
-                                  telefone.hashCode,
+                                  cep.hashCode,
                                   $mrjc(
-                                      uf.hashCode,
+                                      telefone.hashCode,
                                       $mrjc(
-                                          municipio.hashCode,
-                                          $mrjc(lat.hashCode,
-                                              lng.hashCode))))))))))));
+                                          uf.hashCode,
+                                          $mrjc(
+                                              municipio.hashCode,
+                                              $mrjc(
+                                                  lat.hashCode,
+                                                  $mrjc(
+                                                      lng.hashCode,
+                                                      alterado
+                                                          .hashCode))))))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is Cliente &&
           other.id == this.id &&
+          other.cnpj == this.cnpj &&
           other.nome == this.nome &&
           other.fantasia == this.fantasia &&
           other.endereco == this.endereco &&
@@ -737,11 +804,13 @@ class Cliente extends DataClass implements Insertable<Cliente> {
           other.uf == this.uf &&
           other.municipio == this.municipio &&
           other.lat == this.lat &&
-          other.lng == this.lng);
+          other.lng == this.lng &&
+          other.alterado == this.alterado);
 }
 
 class ClientesCompanion extends UpdateCompanion<Cliente> {
-  final Value<int> id;
+  final Value<String> id;
+  final Value<String> cnpj;
   final Value<String> nome;
   final Value<String> fantasia;
   final Value<String> endereco;
@@ -753,8 +822,10 @@ class ClientesCompanion extends UpdateCompanion<Cliente> {
   final Value<String> municipio;
   final Value<String> lat;
   final Value<String> lng;
+  final Value<int> alterado;
   const ClientesCompanion({
     this.id = const Value.absent(),
+    this.cnpj = const Value.absent(),
     this.nome = const Value.absent(),
     this.fantasia = const Value.absent(),
     this.endereco = const Value.absent(),
@@ -766,9 +837,11 @@ class ClientesCompanion extends UpdateCompanion<Cliente> {
     this.municipio = const Value.absent(),
     this.lat = const Value.absent(),
     this.lng = const Value.absent(),
+    this.alterado = const Value.absent(),
   });
   ClientesCompanion.insert({
-    @required int id,
+    @required String id,
+    @required String cnpj,
     @required String nome,
     @required String fantasia,
     @required String endereco,
@@ -780,7 +853,9 @@ class ClientesCompanion extends UpdateCompanion<Cliente> {
     @required String municipio,
     @required String lat,
     @required String lng,
+    this.alterado = const Value.absent(),
   })  : id = Value(id),
+        cnpj = Value(cnpj),
         nome = Value(nome),
         fantasia = Value(fantasia),
         endereco = Value(endereco),
@@ -793,7 +868,8 @@ class ClientesCompanion extends UpdateCompanion<Cliente> {
         lat = Value(lat),
         lng = Value(lng);
   ClientesCompanion copyWith(
-      {Value<int> id,
+      {Value<String> id,
+      Value<String> cnpj,
       Value<String> nome,
       Value<String> fantasia,
       Value<String> endereco,
@@ -804,9 +880,11 @@ class ClientesCompanion extends UpdateCompanion<Cliente> {
       Value<String> uf,
       Value<String> municipio,
       Value<String> lat,
-      Value<String> lng}) {
+      Value<String> lng,
+      Value<int> alterado}) {
     return ClientesCompanion(
       id: id ?? this.id,
+      cnpj: cnpj ?? this.cnpj,
       nome: nome ?? this.nome,
       fantasia: fantasia ?? this.fantasia,
       endereco: endereco ?? this.endereco,
@@ -818,6 +896,7 @@ class ClientesCompanion extends UpdateCompanion<Cliente> {
       municipio: municipio ?? this.municipio,
       lat: lat ?? this.lat,
       lng: lng ?? this.lng,
+      alterado: alterado ?? this.alterado,
     );
   }
 }
@@ -827,12 +906,24 @@ class $ClientesTable extends Clientes with TableInfo<$ClientesTable, Cliente> {
   final String _alias;
   $ClientesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
+  GeneratedTextColumn _id;
   @override
-  GeneratedIntColumn get id => _id ??= _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn(
+  GeneratedTextColumn get id => _id ??= _constructId();
+  GeneratedTextColumn _constructId() {
+    return GeneratedTextColumn(
       'id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _cnpjMeta = const VerificationMeta('cnpj');
+  GeneratedTextColumn _cnpj;
+  @override
+  GeneratedTextColumn get cnpj => _cnpj ??= _constructCnpj();
+  GeneratedTextColumn _constructCnpj() {
+    return GeneratedTextColumn(
+      'cnpj',
       $tableName,
       false,
     );
@@ -963,9 +1054,19 @@ class $ClientesTable extends Clientes with TableInfo<$ClientesTable, Cliente> {
     );
   }
 
+  final VerificationMeta _alteradoMeta = const VerificationMeta('alterado');
+  GeneratedIntColumn _alterado;
+  @override
+  GeneratedIntColumn get alterado => _alterado ??= _constructAlterado();
+  GeneratedIntColumn _constructAlterado() {
+    return GeneratedIntColumn('alterado', $tableName, false,
+        defaultValue: const Constant(0));
+  }
+
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        cnpj,
         nome,
         fantasia,
         endereco,
@@ -976,7 +1077,8 @@ class $ClientesTable extends Clientes with TableInfo<$ClientesTable, Cliente> {
         uf,
         municipio,
         lat,
-        lng
+        lng,
+        alterado
       ];
   @override
   $ClientesTable get asDslTable => this;
@@ -992,6 +1094,12 @@ class $ClientesTable extends Clientes with TableInfo<$ClientesTable, Cliente> {
       context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (d.cnpj.present) {
+      context.handle(
+          _cnpjMeta, cnpj.isAcceptableValue(d.cnpj.value, _cnpjMeta));
+    } else if (isInserting) {
+      context.missing(_cnpjMeta);
     }
     if (d.nome.present) {
       context.handle(
@@ -1055,6 +1163,10 @@ class $ClientesTable extends Clientes with TableInfo<$ClientesTable, Cliente> {
     } else if (isInserting) {
       context.missing(_lngMeta);
     }
+    if (d.alterado.present) {
+      context.handle(_alteradoMeta,
+          alterado.isAcceptableValue(d.alterado.value, _alteradoMeta));
+    }
     return context;
   }
 
@@ -1070,7 +1182,10 @@ class $ClientesTable extends Clientes with TableInfo<$ClientesTable, Cliente> {
   Map<String, Variable> entityToSql(ClientesCompanion d) {
     final map = <String, Variable>{};
     if (d.id.present) {
-      map['id'] = Variable<int, IntType>(d.id.value);
+      map['id'] = Variable<String, StringType>(d.id.value);
+    }
+    if (d.cnpj.present) {
+      map['cnpj'] = Variable<String, StringType>(d.cnpj.value);
     }
     if (d.nome.present) {
       map['nome'] = Variable<String, StringType>(d.nome.value);
@@ -1105,6 +1220,9 @@ class $ClientesTable extends Clientes with TableInfo<$ClientesTable, Cliente> {
     if (d.lng.present) {
       map['lng'] = Variable<String, StringType>(d.lng.value);
     }
+    if (d.alterado.present) {
+      map['alterado'] = Variable<int, IntType>(d.alterado.value);
+    }
     return map;
   }
 
@@ -1117,7 +1235,7 @@ class $ClientesTable extends Clientes with TableInfo<$ClientesTable, Cliente> {
 class Pedido extends DataClass implements Insertable<Pedido> {
   final String id;
   final int idvendedor;
-  final int idcliente;
+  final String idcliente;
   final String nomecliente;
   final String datapedido;
   final int total;
@@ -1141,8 +1259,8 @@ class Pedido extends DataClass implements Insertable<Pedido> {
       id: stringType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       idvendedor:
           intType.mapFromDatabaseResponse(data['${effectivePrefix}idvendedor']),
-      idcliente:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}idcliente']),
+      idcliente: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}idcliente']),
       nomecliente: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}nomecliente']),
       datapedido: stringType
@@ -1160,7 +1278,7 @@ class Pedido extends DataClass implements Insertable<Pedido> {
     return Pedido(
       id: serializer.fromJson<String>(json['id']),
       idvendedor: serializer.fromJson<int>(json['idvendedor']),
-      idcliente: serializer.fromJson<int>(json['idcliente']),
+      idcliente: serializer.fromJson<String>(json['idcliente']),
       nomecliente: serializer.fromJson<String>(json['nomecliente']),
       datapedido: serializer.fromJson<String>(json['datapedido']),
       total: serializer.fromJson<int>(json['total']),
@@ -1174,7 +1292,7 @@ class Pedido extends DataClass implements Insertable<Pedido> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'idvendedor': serializer.toJson<int>(idvendedor),
-      'idcliente': serializer.toJson<int>(idcliente),
+      'idcliente': serializer.toJson<String>(idcliente),
       'nomecliente': serializer.toJson<String>(nomecliente),
       'datapedido': serializer.toJson<String>(datapedido),
       'total': serializer.toJson<int>(total),
@@ -1213,7 +1331,7 @@ class Pedido extends DataClass implements Insertable<Pedido> {
   Pedido copyWith(
           {String id,
           int idvendedor,
-          int idcliente,
+          String idcliente,
           String nomecliente,
           String datapedido,
           int total,
@@ -1274,7 +1392,7 @@ class Pedido extends DataClass implements Insertable<Pedido> {
 class PedidosCompanion extends UpdateCompanion<Pedido> {
   final Value<String> id;
   final Value<int> idvendedor;
-  final Value<int> idcliente;
+  final Value<String> idcliente;
   final Value<String> nomecliente;
   final Value<String> datapedido;
   final Value<int> total;
@@ -1293,7 +1411,7 @@ class PedidosCompanion extends UpdateCompanion<Pedido> {
   PedidosCompanion.insert({
     @required String id,
     @required int idvendedor,
-    @required int idcliente,
+    @required String idcliente,
     @required String nomecliente,
     @required String datapedido,
     @required int total,
@@ -1309,7 +1427,7 @@ class PedidosCompanion extends UpdateCompanion<Pedido> {
   PedidosCompanion copyWith(
       {Value<String> id,
       Value<int> idvendedor,
-      Value<int> idcliente,
+      Value<String> idcliente,
       Value<String> nomecliente,
       Value<String> datapedido,
       Value<int> total,
@@ -1357,11 +1475,11 @@ class $PedidosTable extends Pedidos with TableInfo<$PedidosTable, Pedido> {
   }
 
   final VerificationMeta _idclienteMeta = const VerificationMeta('idcliente');
-  GeneratedIntColumn _idcliente;
+  GeneratedTextColumn _idcliente;
   @override
-  GeneratedIntColumn get idcliente => _idcliente ??= _constructIdcliente();
-  GeneratedIntColumn _constructIdcliente() {
-    return GeneratedIntColumn(
+  GeneratedTextColumn get idcliente => _idcliente ??= _constructIdcliente();
+  GeneratedTextColumn _constructIdcliente() {
+    return GeneratedTextColumn(
       'idcliente',
       $tableName,
       false,
@@ -1514,7 +1632,7 @@ class $PedidosTable extends Pedidos with TableInfo<$PedidosTable, Pedido> {
       map['idvendedor'] = Variable<int, IntType>(d.idvendedor.value);
     }
     if (d.idcliente.present) {
-      map['idcliente'] = Variable<int, IntType>(d.idcliente.value);
+      map['idcliente'] = Variable<String, StringType>(d.idcliente.value);
     }
     if (d.nomecliente.present) {
       map['nomecliente'] = Variable<String, StringType>(d.nomecliente.value);
@@ -1545,7 +1663,6 @@ class Iten extends DataClass implements Insertable<Iten> {
   final String idpedido;
   final int idproduto;
   final int qtde;
-  final int valor;
   final String totalfmt;
   final String nome;
   final int enviado;
@@ -1554,7 +1671,6 @@ class Iten extends DataClass implements Insertable<Iten> {
       @required this.idpedido,
       @required this.idproduto,
       @required this.qtde,
-      @required this.valor,
       @required this.totalfmt,
       @required this.nome,
       @required this.enviado});
@@ -1570,7 +1686,6 @@ class Iten extends DataClass implements Insertable<Iten> {
       idproduto:
           intType.mapFromDatabaseResponse(data['${effectivePrefix}idproduto']),
       qtde: intType.mapFromDatabaseResponse(data['${effectivePrefix}qtde']),
-      valor: intType.mapFromDatabaseResponse(data['${effectivePrefix}valor']),
       totalfmt: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}totalfmt']),
       nome: stringType.mapFromDatabaseResponse(data['${effectivePrefix}nome']),
@@ -1586,7 +1701,6 @@ class Iten extends DataClass implements Insertable<Iten> {
       idpedido: serializer.fromJson<String>(json['idpedido']),
       idproduto: serializer.fromJson<int>(json['idproduto']),
       qtde: serializer.fromJson<int>(json['qtde']),
-      valor: serializer.fromJson<int>(json['valor']),
       totalfmt: serializer.fromJson<String>(json['totalfmt']),
       nome: serializer.fromJson<String>(json['nome']),
       enviado: serializer.fromJson<int>(json['enviado']),
@@ -1600,7 +1714,6 @@ class Iten extends DataClass implements Insertable<Iten> {
       'idpedido': serializer.toJson<String>(idpedido),
       'idproduto': serializer.toJson<int>(idproduto),
       'qtde': serializer.toJson<int>(qtde),
-      'valor': serializer.toJson<int>(valor),
       'totalfmt': serializer.toJson<String>(totalfmt),
       'nome': serializer.toJson<String>(nome),
       'enviado': serializer.toJson<int>(enviado),
@@ -1618,8 +1731,6 @@ class Iten extends DataClass implements Insertable<Iten> {
           ? const Value.absent()
           : Value(idproduto),
       qtde: qtde == null && nullToAbsent ? const Value.absent() : Value(qtde),
-      valor:
-          valor == null && nullToAbsent ? const Value.absent() : Value(valor),
       totalfmt: totalfmt == null && nullToAbsent
           ? const Value.absent()
           : Value(totalfmt),
@@ -1635,7 +1746,6 @@ class Iten extends DataClass implements Insertable<Iten> {
           String idpedido,
           int idproduto,
           int qtde,
-          int valor,
           String totalfmt,
           String nome,
           int enviado}) =>
@@ -1644,7 +1754,6 @@ class Iten extends DataClass implements Insertable<Iten> {
         idpedido: idpedido ?? this.idpedido,
         idproduto: idproduto ?? this.idproduto,
         qtde: qtde ?? this.qtde,
-        valor: valor ?? this.valor,
         totalfmt: totalfmt ?? this.totalfmt,
         nome: nome ?? this.nome,
         enviado: enviado ?? this.enviado,
@@ -1656,7 +1765,6 @@ class Iten extends DataClass implements Insertable<Iten> {
           ..write('idpedido: $idpedido, ')
           ..write('idproduto: $idproduto, ')
           ..write('qtde: $qtde, ')
-          ..write('valor: $valor, ')
           ..write('totalfmt: $totalfmt, ')
           ..write('nome: $nome, ')
           ..write('enviado: $enviado')
@@ -1673,10 +1781,8 @@ class Iten extends DataClass implements Insertable<Iten> {
               idproduto.hashCode,
               $mrjc(
                   qtde.hashCode,
-                  $mrjc(
-                      valor.hashCode,
-                      $mrjc(totalfmt.hashCode,
-                          $mrjc(nome.hashCode, enviado.hashCode))))))));
+                  $mrjc(totalfmt.hashCode,
+                      $mrjc(nome.hashCode, enviado.hashCode)))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -1685,7 +1791,6 @@ class Iten extends DataClass implements Insertable<Iten> {
           other.idpedido == this.idpedido &&
           other.idproduto == this.idproduto &&
           other.qtde == this.qtde &&
-          other.valor == this.valor &&
           other.totalfmt == this.totalfmt &&
           other.nome == this.nome &&
           other.enviado == this.enviado);
@@ -1696,7 +1801,6 @@ class ItensCompanion extends UpdateCompanion<Iten> {
   final Value<String> idpedido;
   final Value<int> idproduto;
   final Value<int> qtde;
-  final Value<int> valor;
   final Value<String> totalfmt;
   final Value<String> nome;
   final Value<int> enviado;
@@ -1705,7 +1809,6 @@ class ItensCompanion extends UpdateCompanion<Iten> {
     this.idpedido = const Value.absent(),
     this.idproduto = const Value.absent(),
     this.qtde = const Value.absent(),
-    this.valor = const Value.absent(),
     this.totalfmt = const Value.absent(),
     this.nome = const Value.absent(),
     this.enviado = const Value.absent(),
@@ -1715,14 +1818,12 @@ class ItensCompanion extends UpdateCompanion<Iten> {
     @required String idpedido,
     @required int idproduto,
     @required int qtde,
-    @required int valor,
     @required String totalfmt,
     @required String nome,
     this.enviado = const Value.absent(),
   })  : idpedido = Value(idpedido),
         idproduto = Value(idproduto),
         qtde = Value(qtde),
-        valor = Value(valor),
         totalfmt = Value(totalfmt),
         nome = Value(nome);
   ItensCompanion copyWith(
@@ -1730,7 +1831,6 @@ class ItensCompanion extends UpdateCompanion<Iten> {
       Value<String> idpedido,
       Value<int> idproduto,
       Value<int> qtde,
-      Value<int> valor,
       Value<String> totalfmt,
       Value<String> nome,
       Value<int> enviado}) {
@@ -1739,7 +1839,6 @@ class ItensCompanion extends UpdateCompanion<Iten> {
       idpedido: idpedido ?? this.idpedido,
       idproduto: idproduto ?? this.idproduto,
       qtde: qtde ?? this.qtde,
-      valor: valor ?? this.valor,
       totalfmt: totalfmt ?? this.totalfmt,
       nome: nome ?? this.nome,
       enviado: enviado ?? this.enviado,
@@ -1796,18 +1895,6 @@ class $ItensTable extends Itens with TableInfo<$ItensTable, Iten> {
     );
   }
 
-  final VerificationMeta _valorMeta = const VerificationMeta('valor');
-  GeneratedIntColumn _valor;
-  @override
-  GeneratedIntColumn get valor => _valor ??= _constructValor();
-  GeneratedIntColumn _constructValor() {
-    return GeneratedIntColumn(
-      'valor',
-      $tableName,
-      false,
-    );
-  }
-
   final VerificationMeta _totalfmtMeta = const VerificationMeta('totalfmt');
   GeneratedTextColumn _totalfmt;
   @override
@@ -1839,7 +1926,7 @@ class $ItensTable extends Itens with TableInfo<$ItensTable, Iten> {
 
   @override
   List<GeneratedColumn> get $columns =>
-      [id, idpedido, idproduto, qtde, valor, totalfmt, nome, enviado];
+      [id, idpedido, idproduto, qtde, totalfmt, nome, enviado];
   @override
   $ItensTable get asDslTable => this;
   @override
@@ -1870,12 +1957,6 @@ class $ItensTable extends Itens with TableInfo<$ItensTable, Iten> {
           _qtdeMeta, qtde.isAcceptableValue(d.qtde.value, _qtdeMeta));
     } else if (isInserting) {
       context.missing(_qtdeMeta);
-    }
-    if (d.valor.present) {
-      context.handle(
-          _valorMeta, valor.isAcceptableValue(d.valor.value, _valorMeta));
-    } else if (isInserting) {
-      context.missing(_valorMeta);
     }
     if (d.totalfmt.present) {
       context.handle(_totalfmtMeta,
@@ -1918,9 +1999,6 @@ class $ItensTable extends Itens with TableInfo<$ItensTable, Iten> {
     }
     if (d.qtde.present) {
       map['qtde'] = Variable<int, IntType>(d.qtde.value);
-    }
-    if (d.valor.present) {
-      map['valor'] = Variable<int, IntType>(d.valor.value);
     }
     if (d.totalfmt.present) {
       map['totalfmt'] = Variable<String, StringType>(d.totalfmt.value);

@@ -1,9 +1,12 @@
-import 'package:call_number/call_number.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:maps_launcher/maps_launcher.dart';
+import 'package:pedidos/app/modules/shared/format.dart';
 
 import '../../../app/datamodule/dmlocal.dart';
 import '../../../app/modules/shared/icon_header.dart';
@@ -16,10 +19,33 @@ class ClienteList extends StatefulWidget {
 }
 
 class _ClienteListState extends ModularState<ClienteList, AppController> {
+  TextEditingController _nomeCli = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Basedados.instance.id = '';
+            // Basedados.instance.cnpj = '';
+            // Basedados.instance.nome = '';
+            // Basedados.instance.fantasia = '';
+            // Basedados.instance.endereco = '';
+            // Basedados.instance.bairro = '';
+            // Basedados.instance.numero = '';
+            // Basedados.instance.cep = '';
+            // Basedados.instance.telefone = '';
+            // Basedados.instance.municipio = '';
+            // Basedados.instance.lat = '';
+            // Basedados.instance.lng = '';
+            // Basedados.instance.uf = '';
+            Modular.to.pushNamed('clienteFicha');
+          },
+          child: Icon(Icons.add, size: 40),
+          backgroundColor: Color(0xff46997D),
+          tooltip: 'Adicionar clientes',
+        ),
         body: Column(
           children: [
             Stack(
@@ -60,15 +86,57 @@ class _ClienteListState extends ModularState<ClienteList, AppController> {
                 ),
               ],
             ),
+            Container(
+              height: 60,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                child: TextField(
+                  controller: _nomeCli,
+                  onChanged: (value) async {
+                    controller.updnomeCliente(value);
+                  },
+                  inputFormatters: [
+                    UpperCaseTextFormatter(),
+                  ],
+                  style: TextStyle(
+                    color: Color(0xff317183),
+                  ),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    fillColor: Color(0xff317183).withOpacity(0.2),
+                    filled: true,
+                    labelText: 'Localizar',
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.search,
+                      color: Color(0xff317183),
+                      size: 30,
+                    ),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        _nomeCli.clear();
+                        controller.updnomeCliente('');
+                        FocusScope.of(context).unfocus();
+                      },
+                      child: Icon(
+                        FontAwesomeIcons.eraser,
+                        color: Color(0xff317183),
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             SizedBox(height: 10),
-            Expanded(
-              child: StreamBuilder<List<Cliente>>(
-                  stream: Basedados.instance.getCliente(),
+            Observer(builder: (BuildContext context) {
+              return Expanded(
+                child: StreamBuilder<List<Cliente>>(
+                  stream: Basedados.instance.getCliente(controller.nomeCliente),
                   initialData: [],
                   builder: (context, snapshot) {
                     List<Cliente> cli = snapshot.data;
                     if (!snapshot.hasData || snapshot.data.length == 0) {
-                      return Center(child: CircularProgressIndicator());
+                      return Center(child: Text('Nada encontrado'));
                     } else if (snapshot.hasData) {
                       return ListView.builder(
                           itemCount: cli.length,
@@ -142,7 +210,7 @@ class _ClienteListState extends ModularState<ClienteList, AppController> {
                                             Icon(
                                               FontAwesomeIcons.phone,
                                               color: cli[index].telefone == ''
-                                                  ? Colors.grey
+                                                  ? Colors.red
                                                   : Color(0xff46997D),
                                             ),
                                             Padding(
@@ -154,7 +222,7 @@ class _ClienteListState extends ModularState<ClienteList, AppController> {
                                               'Ligar',
                                               style: TextStyle(
                                                 color: cli[index].telefone == ''
-                                                    ? Colors.grey
+                                                    ? Colors.red
                                                     : Color(0xff46997D),
                                               ),
                                             )
@@ -173,8 +241,8 @@ class _ClienteListState extends ModularState<ClienteList, AppController> {
                                             if (fone.substring(0, 1) != '0') {
                                               fone = '0' + fone;
                                             }
-                                            //print(fone);
-                                            CallNumber().callNumber(fone);
+                                            FlutterPhoneDirectCaller.callNumber(
+                                                fone);
                                           }
                                         },
                                       ),
@@ -188,7 +256,7 @@ class _ClienteListState extends ModularState<ClienteList, AppController> {
                                               Icons.room,
                                               color: cli[index].lat == '' ||
                                                       cli[index].lng == ''
-                                                  ? Colors.grey
+                                                  ? Colors.red
                                                   : Color(0xff46997D),
                                             ),
                                             Padding(
@@ -201,39 +269,174 @@ class _ClienteListState extends ModularState<ClienteList, AppController> {
                                               style: TextStyle(
                                                 color: cli[index].lat == '' ||
                                                         cli[index].lng == ''
-                                                    ? Colors.grey
+                                                    ? Colors.red
                                                     : Color(0xff46997D),
                                               ),
                                             )
                                           ],
                                         ),
-                                        onPressed: () {},
+                                        onPressed: () async {
+                                          if (cli[index].lat != '' ||
+                                              cli[index].lng != '') {
+                                            MapsLauncher.launchCoordinates(
+                                                double.tryParse(cli[index].lat),
+                                                double.tryParse(
+                                                    cli[index].lng));
+                                          } else {
+                                            MapsLauncher.launchQuery(
+                                                cli[index].endereco +
+                                                    ' ' +
+                                                    cli[index].numero +
+                                                    ' ' +
+                                                    cli[index].bairro +
+                                                    ' ' +
+                                                    cli[index].municipio +
+                                                    ' ' +
+                                                    cli[index].uf +
+                                                    '  Brasil');
+                                          }
+                                          //  {
+
+                                          //   await _getLocation();
+                                          //   showCupertinoDialog(
+                                          //       context: context,
+                                          //       builder: (context) =>
+                                          //           CupertinoAlertDialog(
+                                          //             title: Column(
+                                          //               children: [
+                                          //                 Icon(
+                                          //                   Icons.room,
+                                          //                   size: 40,
+                                          //                 ),
+                                          //                 SizedBox(height: 5),
+                                          //                 Text('Coordenadas'),
+                                          //                 SizedBox(height: 5),
+                                          //                 Column(
+                                          //                   crossAxisAlignment:
+                                          //                       CrossAxisAlignment
+                                          //                           .start,
+                                          //                   mainAxisAlignment:
+                                          //                       MainAxisAlignment
+                                          //                           .start,
+                                          //                   children: [
+                                          //                     Text('lat: ' +
+                                          //                         _lat),
+                                          //                     Text('lng: ' +
+                                          //                         _lng),
+                                          //                   ],
+                                          //                 ),
+                                          //               ],
+                                          //             ),
+                                          //             actions: [
+                                          //               CupertinoDialogAction(
+                                          //                 child: Text('Salvar'),
+                                          //                 onPressed: () {
+                                          //                   //alterar no bd
+                                          //                   if (_lat != '') {
+                                          //                     Basedados.instance
+                                          //                         .updCliente(
+                                          //                       Cliente(
+                                          //                         id: cli[index]
+                                          //                             .id,
+                                          //                         nome:
+                                          //                             cli[index]
+                                          //                                 .nome,
+                                          //                         fantasia: cli[
+                                          //                                 index]
+                                          //                             .fantasia,
+                                          //                         endereco: cli[
+                                          //                                 index]
+                                          //                             .endereco,
+                                          //                         numero: cli[
+                                          //                                 index]
+                                          //                             .numero,
+                                          //                         bairro: cli[
+                                          //                                 index]
+                                          //                             .bairro,
+                                          //                         cep:
+                                          //                             cli[index]
+                                          //                                 .cep,
+                                          //                         lat: _lat,
+                                          //                         lng: _lng,
+                                          //                         municipio: cli[
+                                          //                                 index]
+                                          //                             .municipio,
+                                          //                         telefone: cli[
+                                          //                                 index]
+                                          //                             .telefone,
+                                          //                         uf: cli[index]
+                                          //                             .uf,
+                                          //                       ),
+                                          //                     );
+                                          //                   }
+                                          //                   Navigator.pop(
+                                          //                       context);
+                                          //                 },
+                                          //               ),
+                                          //               CupertinoDialogAction(
+                                          //                 child: Text('Fechar'),
+                                          //                 onPressed: () =>
+                                          //                     Navigator.pop(
+                                          //                         context),
+                                          //               ),
+                                          //             ],
+                                          //           ));
+                                          // }
+                                        },
                                       ),
                                       FlatButton(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(4)),
-                                        child: Column(
-                                          children: [
-                                            Icon(
-                                              Icons.edit,
-                                              color: Color(0xff46997D),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                vertical: 2,
-                                              ),
-                                            ),
-                                            Text(
-                                              'Editar',
-                                              style: TextStyle(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(4)),
+                                          child: Column(
+                                            children: [
+                                              Icon(
+                                                Icons.edit,
                                                 color: Color(0xff46997D),
                                               ),
-                                            )
-                                          ],
-                                        ),
-                                        onPressed: () {},
-                                      ),
+                                              Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                  vertical: 2,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Editar',
+                                                style: TextStyle(
+                                                  color: Color(0xff46997D),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                          onPressed: () {
+                                            Basedados.instance.id =
+                                                cli[index].id;
+                                            Basedados.instance.cnpj =
+                                                cli[index].cnpj;
+                                            Basedados.instance.nome =
+                                                cli[index].nome;
+                                            Basedados.instance.fantasia =
+                                                cli[index].fantasia;
+                                            Basedados.instance.endereco =
+                                                cli[index].endereco;
+                                            Basedados.instance.bairro =
+                                                cli[index].bairro;
+                                            Basedados.instance.cep =
+                                                cli[index].cep;
+                                            Basedados.instance.numero =
+                                                cli[index].numero;
+                                            Basedados.instance.telefone =
+                                                cli[index].telefone;
+                                            Basedados.instance.municipio =
+                                                cli[index].municipio;
+                                            Basedados.instance.lat =
+                                                cli[index].lat;
+                                            Basedados.instance.lng =
+                                                cli[index].lng;
+                                            Basedados.instance.uf =
+                                                cli[index].uf;
+                                            Modular.to
+                                                .pushNamed('clienteFicha');
+                                          }),
                                     ],
                                   )
                                 ],
@@ -242,8 +445,10 @@ class _ClienteListState extends ModularState<ClienteList, AppController> {
                           });
                     }
                     return Center(child: CircularProgressIndicator());
-                  }),
-            ),
+                  },
+                ),
+              );
+            }),
           ],
         ),
       ),

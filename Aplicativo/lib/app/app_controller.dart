@@ -86,6 +86,14 @@ abstract class _AppControllerBase with Store {
   }
 
   @observable
+  String nomeCliente = '';
+
+  @action
+  void updnomeCliente(String value) {
+    nomeCliente = value;
+  }
+
+  @observable
   int idUsuario = 0;
 
   @action
@@ -165,6 +173,61 @@ abstract class _AppControllerBase with Store {
     lembrarWifi = value;
   }
 
+  @observable
+  String nomeProduto = '';
+
+  @action
+  void updnomeProduto(String value) {
+    nomeProduto = value;
+  }
+
+  //controllers do pedido ---------
+  @observable
+  String pedidoCodigo = '';
+
+  @action
+  void updpedidoCodigo() {
+    pedidoCodigo =
+        idUsuario.toString() + DateTime.now().millisecondsSinceEpoch.toString();
+  }
+
+  @observable
+  String pedidoSubtotal = 'R\$ 0,00';
+
+  @action
+  void updpedidoSubtotal(String value) {
+    pedidoSubtotal = value;
+  }
+
+  @observable
+  String pNomeCliente = '';
+  @action
+  void updpNomeCliente(String value) {
+    pNomeCliente = value;
+  }
+
+  @observable
+  String pedidoCidade = '';
+  @action
+  void updpedidoCidade(String value) {
+    pedidoCidade = value;
+  }
+
+  @observable
+  String pedidoClienteId = '';
+  @action
+  void updpedidoClienteId(String value) {
+    pedidoClienteId = value;
+  }
+
+  @observable
+  int pedidototal = 0;
+
+  @action
+  void updpedidototal(int value) => pedidototal = value;
+
+  //--------------------------------
+
   @computed
   String get urlbase => 'http://$ip:8082/';
 
@@ -196,9 +259,17 @@ abstract class _AppControllerBase with Store {
       urlbase +
       'Generico?dwaccesstag=UVZGREVTT0tIMTAwSFhB&pSelect=' +
       base64.encode(utf8.encode(
-          'select id, nome, bairro, cep, endereco, fantasia, ' +
-              'lat, lng, municipio, numero, telefone, uf from cliente' +
-              ' order by 2'));
+          'select uuid, nome, cnpjcpf, bairro, cep, endereco, fantasia, ' +
+              'lat, lng, municipio, numero, telefone, uf from cliente ' +
+              'where cnpjcpf is not null order by 2'));
+
+  @computed
+  String get enviaClientes =>
+      urlbase + 'Clientes?dwaccesstag=UVZGREVTT0tIMTAwSFhB';
+
+  @computed
+  String get enviaVendas =>
+      urlbase + 'GravaVendas?dwaccesstag=UVZGREVTT0tIMTAwSFhB';
 
   @computed
   String get nomevendedor => 'Vendedor: $login';

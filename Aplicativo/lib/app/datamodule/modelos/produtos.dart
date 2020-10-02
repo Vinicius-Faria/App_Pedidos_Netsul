@@ -11,6 +11,7 @@ class ProdutosModel {
         preco: json['PRECO'] ?? 0,
         valorfmt: json['VALORFMT'] ?? 'R\$ 0.00',
         quant: 0,
+        total: '',
       ),
     );
     return null;

@@ -16,13 +16,16 @@ class Produtos extends Table {
   TextColumn get unidade => text()();
   IntColumn get preco => integer()();
   TextColumn get valorfmt => text()();
-  RealColumn get quant => real()();
+  TextColumn get total => text()();
+  // RealColumn get quant => real()();
+  IntColumn get quant => integer()();
   @override
   Set<Column> get primaryKey => {id};
 }
 
 class Clientes extends Table {
-  IntColumn get id => integer()();
+  TextColumn get id => text()();
+  TextColumn get cnpj => text()();
   TextColumn get nome => text().withLength(max: 50)();
   TextColumn get fantasia => text().withLength(max: 50)();
   TextColumn get endereco => text()();
@@ -34,6 +37,7 @@ class Clientes extends Table {
   TextColumn get municipio => text()();
   TextColumn get lat => text()();
   TextColumn get lng => text()();
+  IntColumn get alterado => integer().withDefault(const Constant(0))();
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -41,7 +45,7 @@ class Clientes extends Table {
 class Pedidos extends Table {
   TextColumn get id => text()();
   IntColumn get idvendedor => integer()();
-  IntColumn get idcliente => integer()();
+  TextColumn get idcliente => text()();
   TextColumn get nomecliente => text()();
   TextColumn get datapedido => text()();
   IntColumn get total => integer()();
@@ -56,7 +60,7 @@ class Itens extends Table {
   TextColumn get idpedido => text()();
   IntColumn get idproduto => integer()();
   IntColumn get qtde => integer()();
-  IntColumn get valor => integer()();
+  //IntColumn get valor => integer()();
   TextColumn get totalfmt => text()();
   TextColumn get nome => text().withLength(max: 50)();
   IntColumn get enviado => integer().withDefault(const Constant(0))();
@@ -113,6 +117,66 @@ class Basedados extends _$Basedados {
     return (delete(produtos)).go();
   }
 
+  Future updProduto(Produto prod) {
+    return (update(produtos)).replace(prod);
+  }
+
+  Future zeraProduto() {
+    return customSelectQuery('Update Produtos set quant = 0 where quant > 0')
+        .get();
+  }
+
+  Future addPedido(Pedido ped) {
+    return into(pedidos).insert(ped);
+  }
+
+  Future gravaItens(String idPed) {
+    return customSelectQuery('INSERT INTO Itens (idpedido, idproduto, qtde,' +
+            ' totalfmt, nome, enviado)' +
+            'select "$idPed", id, quant, valorfmt, nome, 0 from produtos where quant > 0')
+        .get();
+  }
+
+  /*
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get idpedido => text()();
+  IntColumn get idproduto => integer()();
+  IntColumn get qtde => integer()();
+  //IntColumn get valor => integer()();
+  TextColumn get totalfmt => text()();
+  TextColumn get nome => text().withLength(max: 50)();
+  IntColumn get enviado => integer().withDefault(const Constant(0))();
+   */
+
+  subtotalVenda() {
+    return customSelectQuery(
+            'select SUM(preco * quant) as total from produtos where quant > 0')
+        .getSingle()
+        .then((row) => row.data["total"]);
+  }
+
+  Stream<List<Produto>> getProduto(String nomeProd) {
+    if (nomeProd == null || nomeProd.isEmpty)
+      return (select(produtos)
+            ..orderBy(
+              ([
+                (p) => OrderingTerm(expression: p.nome, mode: OrderingMode.asc),
+              ]),
+            ))
+          .watch();
+    else
+      return (select(produtos)
+            ..where((produto) =>
+                produto.nome.upper().like('%' + nomeProd.toUpperCase() + '%'))
+            ..orderBy(
+              ([
+                (p) => OrderingTerm(
+                    expression: produtos.nome, mode: OrderingMode.asc),
+              ]),
+            ))
+          .watch();
+  }
+
   //filtrar produtos pela categoria
   Stream<List<Produto>> getProdutosCategoria(int id) {
     return (select(produtos)
@@ -128,6 +192,14 @@ class Basedados extends _$Basedados {
     return (delete(pedidos)..where((id) => pedidos.id.equals(idPedido))).go();
   }
 
+  Stream<List<Pedido>> getPedidos() {
+    return (select(pedidos)
+          ..orderBy(
+            ([(p) => OrderingTerm(expression: p.id, mode: OrderingMode.asc)]),
+          ))
+        .watch();
+  }
+
   //itens
   Future addItem(Iten item) {
     return into(itens).insert(item);
@@ -141,6 +213,11 @@ class Basedados extends _$Basedados {
     return (delete(itens)..where((id) => itens.id.equals(idItem))).go();
   }
 
+  Future delItensPedido(String idPed) {
+    return customSelectQuery('delete from itens where idpedido = "$idPed"')
+        .get();
+  }
+
 //clientes
   Future addCliente(Cliente cliente) {
     return into(clientes).insert(cliente);
@@ -150,8 +227,34 @@ class Basedados extends _$Basedados {
     return (delete(clientes)).go();
   }
 
-  Stream<List<Cliente>> getCliente() {
-    return select(clientes).watch();
+  Stream<List<Cliente>> getCliente(String nomeCli) {
+    if (nomeCli == null || nomeCli.isEmpty)
+      return (select(clientes)
+            ..orderBy(
+              ([
+                (c) => OrderingTerm(expression: c.nome, mode: OrderingMode.asc),
+              ]),
+            ))
+          .watch();
+    else
+      return (select(clientes)
+            ..where((cliente) =>
+                cliente.nome.upper().like('%' + nomeCli.toUpperCase() + '%'))
+            ..orderBy(
+              ([
+                (c) => OrderingTerm(expression: c.nome, mode: OrderingMode.asc),
+              ]),
+            ))
+          .watch();
+  }
+
+  Future<List<Cliente>> enviaCliente() {
+    return (select(clientes)..where((cliente) => cliente.alterado.equals(1)))
+        .get();
+  }
+
+  Future zeraCliente() {
+    return customSelectQuery('Update Clientes set alterado = 0').get();
   }
 
   Future<List<Pedido>> getPedidoLocal() {
@@ -165,8 +268,7 @@ class Basedados extends _$Basedados {
 
   Future<List<Iten>> enviarItens() {
     return (select(itens)
-          ..addColumns(
-              [itens.idpedido, itens.idproduto, itens.qtde, itens.valor])
+          ..addColumns([itens.idpedido, itens.idproduto, itens.qtde])
           ..where((iten) => iten.enviado.equals(0)))
         .get();
   }
@@ -182,15 +284,36 @@ class Basedados extends _$Basedados {
         }).toList());
   }
 
+  Future alteraLocation(int codigo, String lat, lng) {
+    return customSelectQuery(
+            'Update Clientes SET lat = $lat, lng = $lng where id = $codigo')
+        .get();
+  }
+
+  Future updCliente(Cliente cli) {
+    return (update(clientes)).replace(cli);
+  }
+
   //contar rows
   Future<int> countCa() async => (await select(categorias).get()).length;
   Future<int> countPr() async => (await select(produtos).get()).length;
   Future<int> countPe() async => (await select(pedidos).get()).length;
   Future<int> countCl() async => (await select(clientes).get()).length;
 
-  // Future<List<Categoria>> nmeCat() {
-  //   return enviaCat().get();
-  // }
+  String id = '';
+  String nome = '';
+  String cnpj = '';
+  String bairro = '';
+  String cep = '';
+  String endereco = '';
+  String fantasia = '';
+  String lat = '';
+  String lng = '';
+  String municipio = '';
+  String numero = '';
+  String telefone = '';
+  String uf = '';
+  String alterado = '';
 
   //controlar a versão. qualquer alteração é so rodar o comando novamente para recriar
   @override
